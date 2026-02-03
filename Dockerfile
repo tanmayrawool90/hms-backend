@@ -1,23 +1,15 @@
 # -------- BUILD STAGE --------
-FROM eclipse-temurin:17-jdk AS build
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Copy Maven wrapper & pom first
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
+# Copy everything
+COPY . .
 
-# Give execute permission to mvnw
-RUN chmod +x mvnw
+# Fix mvnw permissions + line endings
+RUN chmod +x mvnw && sed -i 's/\r$//' mvnw
 
-# Download dependencies (cached layer)
-RUN ./mvnw dependency:go-offline
-
-# Copy source code
-COPY src src
-
-# Build jar
+# Build the application
 RUN ./mvnw clean package -DskipTests
 
 # -------- RUN STAGE --------
@@ -25,7 +17,7 @@ FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=0 /app/target/*.jar app.jar
 
 EXPOSE 8080
 
