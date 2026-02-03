@@ -8,8 +8,6 @@ COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
-# Download dependencies
-RUN mvn dependency:go-offline
 
 # Copy source code
 COPY src src
